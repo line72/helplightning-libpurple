@@ -1,0 +1,6 @@
+Makefile.dep
+*.o
+*.so
+src/*.o
+
+tests/check_libhelplightning

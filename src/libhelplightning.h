@@ -24,6 +24,6 @@
 #endif
 
 #define HELPLIGHTNING_PLUGIN_ID "prpl-line72-helplightning"
-#define HELPLIGHTNING_VERSION "0.0.1"
+#define HELPLIGHTNING_VERSION "0.0.2"
 
 #endif

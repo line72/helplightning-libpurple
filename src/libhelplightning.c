@@ -334,7 +334,10 @@ int libhelplightning_send_im(PurpleConnection *gc, const char *who, const char *
     return 0;
   }
 
-  Deferred *d = libgaldr_send_im_to(ga, contact, what);
+  // strip out <br> and replace with new lines
+  char* escaped = purple_unescape_html(what);
+
+  Deferred *d = libgaldr_send_im_to(ga, contact, escaped);
   // do callbacks?
   
   return 1;

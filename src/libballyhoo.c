@@ -49,7 +49,7 @@ BallyhooAccount* libballyhoo_start()
   BallyhooAccount* ba = g_new0(BallyhooAccount, 1);
   ba->authenticated = FALSE;
   ba->pending_callbacks = g_hash_table_new(g_int64_hash, g_int64_equal);
-  ba->inbuf_len = 2048;
+  ba->inbuf_len = 32768;
   ba->inbuf_used = 0;
   ba->inbuf = g_malloc0(ba->inbuf_len);
   ba->decoded_chunks = g_hash_table_new(g_direct_hash, g_direct_equal);
@@ -300,7 +300,16 @@ static void libballyhoo_handle_input_cb(gpointer data, PurpleSslConnection *gsc,
   }
   
   do {
-    size_t remaining = ba->inbuf_len - ba->inbuf_used - 1;
+    long long remaining = ba->inbuf_len - ba->inbuf_used - 1;
+    if (remaining <= 0) {
+      purple_debug_info("helplightning", "ERROR!! Inputbuf is out of space!\n",
+                        remaining, ba->inbuf_len, ba->inbuf_used);
+
+      purple_connection_error_reason(ba->gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+                                     "Input buf is out of space");
+
+      return;
+    }
     len = purple_ssl_read(ba->gsc, ba->inbuf + ba->inbuf_used,
                           remaining);
     purple_debug_info("helplightning", "read %lld bytes for total %zu\n", len, (size_t)(ba->inbuf_used + len));

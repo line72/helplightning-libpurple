@@ -1,3 +1,6 @@
+2022-10-31  Marcus Dillavou  <line72@line72.net>
+	* ISSUE-9 - Crash when inputbuf is out of space
+
 0.0.2
 ==========
 2022-10-28  Marcus Dillavou  <line72@line72.net>

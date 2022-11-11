@@ -117,12 +117,20 @@ void libgaldr_connected_cb(PurpleConnection *gc)
   const char *username = purple_account_get_username(ga->account);
   const char *password = purple_account_get_password(ga->account);
 
+  const char *device_id = purple_account_get_string(ga->account, "device_id", NULL);
+  if (!device_id) {
+    device_id = g_uuid_string_random();
+    purple_debug_info("helplightning", "WORF: new device_id %s\n", device_id);
+    purple_account_set_string(ga->account, "device_id", device_id);
+  }
+  purple_debug_info("helplightning", "WORF: device_id: %s\n", device_id);
+
   purple_connection_update_progress(ga->ba->gc, "Authenticating",
                                     1,   /* which connection step this is */
                                     3);  /* total number of steps */
 
   // !mwd - TODO: pull actual acount info and set callbacks
-  Deferred *dfr = libgaldr_auth(ga, username, password, "abcde");
+  Deferred *dfr = libgaldr_auth(ga, username, password, device_id);
   libballyhoo_deferred_add_callbacks(dfr,
                                      libgaldr_do_auth_cb,
                                      libgaldr_do_auth_err);

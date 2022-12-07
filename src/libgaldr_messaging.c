@@ -29,6 +29,8 @@ Deferred *_libgaldr_send_im_to(GaldrAccount *acct, GaldrContact *contact,
                                const char *message);
 DeferredResponse *libgaldr_do_send_im(BallyhooAccount *ba,
                                       gpointer resp, gpointer user_data);
+DeferredResponse *_libgaldr_messaging_err(BallyhooAccount *ba,
+                                          gpointer fault, gpointer user_data);
 
 Deferred *libgaldr_send_im_to(GaldrAccount *acct, GaldrContact *contact,
                               const char *message)
@@ -39,6 +41,13 @@ Deferred *libgaldr_send_im_to(GaldrAccount *acct, GaldrContact *contact,
                                         galdr_marshal_POINTER__POINTER_POINTER_POINTER,
                                         3,
                                         acct, contact, message);
+  
+  // add a custom error handler for when the session token is expired
+  CallbackPair *cp = g_new0(CallbackPair, 1);
+  cp->err = _libgaldr_messaging_err;
+  cp->user_data = contact;
+  libballyhoo_deferred_add_callback_pair(d, cp);
+  
   libgaldr_add_retry(d, m);
 
   return d;
@@ -100,4 +109,31 @@ DeferredResponse *libgaldr_do_send_im(BallyhooAccount *ba,
   Deferred *dfr = _libgaldr_send_im_to(ba->parent, im->contact, im->what);
 
   return libgaldr_make_deferred_deferred(dfr);
+}
+
+DeferredResponse *_libgaldr_messaging_err(BallyhooAccount *ba,
+                                          gpointer fault, gpointer user_data)
+{
+  purple_debug_info("helplightning->", "libgaldr_messaging_err\n");
+  GaldrAccount *ga = ba->parent;
+  
+  BallyhooXMLRPC *resp = (BallyhooXMLRPC*)fault;
+  purple_debug_info("helplightning", "libgaldr_messaging_err %d\n", resp->fault_code);
+  if (resp->fault_code == 1003) {
+    purple_debug_info("helplightning", "SESSION TOKEN EXPIRED, DELETING SESSION\n");
+
+    GaldrContact *contact = user_data;
+    if (contact->session_id) {
+      purple_debug_info("helplightning", "removing session %s\n", contact->session_id);
+      gboolean ret = g_hash_table_remove(ga->sessions, contact->session_id);
+      if (ret) {
+        purple_debug_info("helplightning", "successfully removed session\n");
+      } else {
+        purple_debug_info("helplightning", "failed to removed session\n");
+      }
+    }
+  }
+
+  // propagate the failure up
+  return libgaldr_make_deferred_fault((gpointer)(resp));
 }

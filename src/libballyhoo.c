@@ -302,8 +302,7 @@ static void libballyhoo_handle_input_cb(gpointer data, PurpleSslConnection *gsc,
   do {
     long long remaining = ba->inbuf_len - ba->inbuf_used - 1;
     if (remaining <= 0) {
-      purple_debug_info("helplightning", "ERROR!! Inputbuf is out of space!\n",
-                        remaining, ba->inbuf_len, ba->inbuf_used);
+      purple_debug_info("helplightning", "ERROR!! Inputbuf is out of space!\n");
 
       purple_connection_error_reason(ba->gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
                                      "Input buf is out of space");

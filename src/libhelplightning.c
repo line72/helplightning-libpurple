@@ -463,7 +463,7 @@ static PurplePluginInfo info = {
   
   "Help Lightning support for libpurple.",
   "Marcus Dillavou <line72@line72.net>",
-  "https://github.com/line72/slack-helplightning",
+  "https://github.com/line72/helplightning-libpurple",
   
   helplightning_load_plugin, /* load */
   NULL, /* unload */

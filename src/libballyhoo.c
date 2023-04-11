@@ -265,7 +265,7 @@ void libballyhoo_do_helo(BallyhooAccount *ba, PurpleSslConnection *gsc)
   }
 
   // now send the headers..
-  gchar *headers = g_strdup_printf("Encoding: text\nUser-Agent: helplightning-slack/%s\n",
+  gchar *headers = g_strdup_printf("Encoding: text\nUser-Agent: helplightning-libpurple/%s\n",
                                    HELPLIGHTNING_VERSION);
   libballyhoo_send_raw(gsc, headers, strlen(headers));
   g_free(headers);
